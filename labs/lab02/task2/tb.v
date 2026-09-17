@@ -1,20 +1,17 @@
 // tb.v
-// Starter testbench template -- YOU complete this file.
-
-// tb.v
 // Testbench for mux_beh
 
 module tb;
 
-  // Inputs to DUT
+  
   reg t_i0;
   reg t_i1;
   reg t_s;
 
-  // Output from DUT
+  
   wire t_y;
 
-  // Instantiate DUT
+  
   mux_beh DUT (
     .I0(t_i0),
     .I1(t_i1),
@@ -64,9 +61,5 @@ module tb;
 
 endmodule
 
-  // TODO: declare the inputs and outputs
-
-  // TODO: instantiate DUT here
-
-  // Waveform dump configuration (DO NOT CHANGE)
+  
   
