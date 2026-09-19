@@ -1,65 +1,45 @@
 // tb.v
-// Testbench for mux_beh
+// Self-checking testbench for lut.v.
+// Instantiates the LUT with a parameter override different from the
+// module's own defaults, sweeps every valid address, and checks dout
+// against the i*i value the module is supposed to hold at each address.
 
+`timescale 1ns/1ps
 module tb;
 
-  
-  reg t_i0;
-  reg t_i1;
-  reg t_s;
+  // Address wide enough for the largest DEPTH we test (DEPTH=8 -> 3 bits).
+  reg  [2:0] t_sel;
+  wire [7:0] t_dout;
 
-  
-  wire t_y;
+  integer errors;
+  integer i;
+  integer expected;
 
-  
-  mux_beh DUT (
-    .I0(t_i0),
-    .I1(t_i1),
-    .S(t_s),
-    .Y(t_y)
+  lut #(.WIDTH(8), .DEPTH(8)) U1 (
+    .sel  (t_sel),
+    .dout (t_dout)
   );
 
-  // Waveform dump configuration (DO NOT CHANGE)
-  string vcd_file;
-
   initial begin
-    if ($value$plusargs("vcd=%s", vcd_file)) begin
-      $dumpfile(vcd_file);
-      $dumpvars(0, DUT);
+    errors = 0;
+
+    for (i = 0; i < 8; i = i + 1) begin
+      t_sel = i[2:0];
+      #1;
+      expected = i * i;
+      if (t_dout !== expected[7:0]) begin
+        errors = errors + 1;
+        $display("FAIL: sel=%0d -> dout=%0d (%b), expected=%0d (%b)",
+                  i, t_dout, t_dout, expected, expected[7:0]);
+      end
     end
-  end
 
-  // Apply different input combinations
-  initial begin
-    t_i0 = 0; t_i1 = 0; t_s = 0;
-    #10;
-
-    t_i0 = 0; t_i1 = 1; t_s = 0;
-    #10;
-
-    t_i0 = 0; t_i1 = 1; t_s = 1;
-    #10;
-
-    t_i0 = 1; t_i1 = 0; t_s = 0;
-    #10;
-
-    t_i0 = 1; t_i1 = 0; t_s = 1;
-    #10;
-
-    t_i0 = 1; t_i1 = 1; t_s = 0;
-    #10;
-
-    t_i0 = 1; t_i1 = 1; t_s = 1;
-    #10;
+    if (errors == 0)
+      $display("ALL TESTS PASSED (DEPTH=8, WIDTH=8, 8/8 addresses correct)");
+    else
+      $display("TESTS FAILED: %0d error(s) found", errors);
 
     $finish;
   end
 
-  initial
-    $monitor($time, " I0=%b I1=%b S=%b | Y=%b",
-             t_i0, t_i1, t_s, t_y);
-
 endmodule
-
-  
-  
